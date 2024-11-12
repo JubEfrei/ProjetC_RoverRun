@@ -7,6 +7,7 @@
 #include <stdlib.h>
 
 typedef struct s_node {
+    struct s_node *parent;
     int value;
     int depth;
     int nbSons;
