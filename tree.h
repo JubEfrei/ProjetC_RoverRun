@@ -15,6 +15,6 @@ typedef struct s_node {
     int *availablemvt;
 } t_node;
 
-t_node *createNode(int value, int depth, int *availablemvt);
+t_node *createNode(int value, int depth, int *availablemvt, t_node *parent);
 
 #endif //TREE_H
