@@ -53,6 +53,9 @@ int main() {
     buildTree(root, 0, avails, nbSons);
     printf("Construction de l'arbre terminée.\n");
 
+    printf("\nAffichage de l'arbre :\n");
+    printTree(root, 0);
+
 
     return 0;
 }

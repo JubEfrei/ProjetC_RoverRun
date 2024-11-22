@@ -21,5 +21,8 @@ int *updateAvails(int *parentAvails, int currentChoice, int nbSons);
 
 void buildTree(t_node *parent, int depth, int *avails, int nbSons);
 
+void printTreeValues(t_node *root);
+
+void printTree(t_node *root, int level);
 
 #endif //TREE_H
