@@ -22,5 +22,40 @@ int main() {
         printf("\n");
     }
     displayMap(map);
+
+    // Initialisation des choix disponibles pour les tests
+    int avails[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, -1};  // -1 pour marquer la fin
+    int nbSons = 9;  // Nombre de choix disponibles
+
+    // Test de createNode
+    printf("Test de createNode...\n");
+    t_node *root = createNode(-1, 0, avails, NULL);  // Création de la racine
+    if (root != NULL) {
+        printf("Création de la racine réussie : valeur = %d, profondeur = %d\n", root->value, root->depth);
+    }
+
+    // Test de updateAvails
+    printf("\nTest de updateAvails...\n");
+    int currentChoice = 3;  // Retirer le choix "3"
+    int *newAvails = updateAvails(avails, currentChoice, nbSons);
+    if (newAvails != NULL) {
+        printf("Mouvements disponibles après updateAvails : ");
+        for (int i = 0; newAvails[i] != -1; i++) {
+            printf("%d ", newAvails[i]);
+        }
+        printf("-1\n");
+        free(newAvails);  // Libérer la mémoire allouée
+    }
+
+    // Test de buildTree
+    printf("\nTest de buildTree...\n");
+    buildTree(root, 0, avails, nbSons);
+    printf("Construction de l'arbre terminée.\n");
+
+    // Libération de la mémoire
+    printf("\nLibération de la mémoire...\n");
+    freeTree(root);  // Assurez-vous que la fonction freeTree est implémentée
+    printf("Mémoire libérée avec succès.\n");
+    
     return 0;
 }
