@@ -17,4 +17,9 @@ typedef struct s_node {
 
 t_node *createNode(int value, int depth, int *availablemvt, t_node *parent);
 
+int *updateAvails(int *parentAvails, int currentChoice, int nbSons);
+
+void buildTree(t_node *parent, int depth, int *avails, int nbSons);
+
+
 #endif //TREE_H

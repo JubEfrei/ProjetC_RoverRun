@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include "map.h"
+#include "tree.h"
 
 int main() {
     t_map map = createMapFromFile("..\\maps\\example1.map");
@@ -52,10 +53,6 @@ int main() {
     buildTree(root, 0, avails, nbSons);
     printf("Construction de l'arbre terminée.\n");
 
-    // Libération de la mémoire
-    printf("\nLibération de la mémoire...\n");
-    freeTree(root);  // Assurez-vous que la fonction freeTree est implémentée
-    printf("Mémoire libérée avec succès.\n");
-    
+
     return 0;
 }
