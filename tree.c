@@ -18,20 +18,20 @@ t_node *createNode(int value, int depth, int *availablemvt, t_node *parent)
     return node;
 }
 int *updateAvails(int *parentAvails, int currentChoice, int nbSons) {
-    // Vérifie que les paramètres sont valides
+    // Vérification de la validité des paramètres
     if (parentAvails == NULL || nbSons <= 0) {
         printf("Erreur: paramètres invalides pour updateAvails\n");
-        return NULL;  // Retourne NULL pour signaler l'erreur
+        return NULL;
     }
 
-    // Alloue de la mémoire pour le tableau des choix restants
-    int *newAvails = (int *)malloc((nbSons) * sizeof(int));  // Taille égale à nbSons pour inclure -1
+    // Allocation de mémoire pour le tableau des choix restants
+    int *newAvails = (int *)malloc(nbSons * sizeof(int));  // On alloue pour un maximum de nbSons
     if (newAvails == NULL) {
-        printf("Erreur: échec de l'allocation mémoire pour updateAvails\n");
-        exit(1);  // Termine le programme en cas d'erreur critique
+        printf("Erreur d'allocation mémoire pour updateAvails\n");
+        exit(1);  // Terminer en cas d'erreur critique
     }
 
-    // Remplit le tableau avec les choix restants
+    // Remplir le tableau newAvails avec les choix restants, en excluant currentChoice
     int index = 0;
     for (int i = 0; i < nbSons; i++) {
         if (parentAvails[i] != currentChoice) {
@@ -39,49 +39,49 @@ int *updateAvails(int *parentAvails, int currentChoice, int nbSons) {
         }
     }
 
-    // Ajoute le marqueur de fin (-1) pour terminer le tableau
+    // Ajouter -1 à la fin pour marquer la fin du tableau
     newAvails[index] = -1;
 
-    // Retourne le nouveau tableau des choix restants
     return newAvails;
 }
 
 
 
 
+
 void buildTree(t_node *parent, int depth, int *avails, int nbSons) {
-    // Arrêt si la profondeur maximale est atteinte
+    // Vérifie si la profondeur maximale est atteinte
     if (depth == 5) {
-        return;
+        return;  // Si on atteint la profondeur 5, on arrête la récursion
     }
 
-    // Vérifie que les paramètres d'entrée sont valides
+    // Vérification de la validité des paramètres
     if (parent == NULL || avails == NULL || nbSons <= 0) {
         printf("Erreur: paramètres invalides pour buildTree\n");
         return;
     }
 
-    // Alloue de la mémoire pour les fils du nœud parent
+    // Alloue de la mémoire pour les nœuds fils du nœud parent
     parent->sons = (t_node **)malloc(nbSons * sizeof(t_node *));
     if (parent->sons == NULL) {
-        printf("Erreur: échec de l'allocation mémoire pour les fils\n");
-        exit(1);
+        printf("Erreur d'allocation mémoire pour les fils\n");
+        exit(1);  // Terminer en cas d'erreur critique
     }
     parent->nbSons = nbSons;
 
+    // Parcours des choix disponibles et création des sous-arbres
     for (int i = 0; i < nbSons; i++) {
         int move = avails[i];  // Choix actuel pour le nœud fils
         int newDepth = depth + 1;
 
-        // Crée une copie des choix restants sans le choix actuel
+        // Créer une copie des choix restants sans le choix actuel
         int *newAvails = updateAvails(avails, move, nbSons);
         if (newAvails == NULL) {
             printf("Erreur: échec de l'allocation mémoire pour updateAvails\n");
             exit(1);
         }
 
-        // Crée le nœud fils
-        printf("move = %d, depht = %d\n", move, newDepth);
+        // Créer le nœud fils
         parent->sons[i] = createNode(move, newDepth, newAvails, parent);
         if (parent->sons[i] == NULL) {
             printf("Erreur: échec de la création d'un nœud fils\n");
@@ -89,10 +89,10 @@ void buildTree(t_node *parent, int depth, int *avails, int nbSons) {
             exit(1);
         }
 
-        // Appel récursif pour construire le sous-arbre
-        buildTree(parent->sons[i], newDepth, newAvails, nbSons - 1);
+        // Appeler récursivement buildTree() pour construire le sous-arbre
+        buildTree(parent->sons[i], newDepth, newAvails, nbSons - 1);  // nbSons doit diminuer à chaque niveau
 
-        // Libère la mémoire de newAvails après utilisation
+        // Libérer la mémoire de newAvails après utilisation
         free(newAvails);
     }
 }
@@ -100,14 +100,21 @@ void buildTree(t_node *parent, int depth, int *avails, int nbSons) {
 
 
 void printTreeValues(t_node *root) {
-    if (root == NULL) return;  // Cas de base : si le nœud est NULL, on ne fait rien
+    if (root->depth == 5) {
+        printf("End tree\n");
+        return;  // Cas de base : si le nœud est NULL, on ne fait rien
+    }
+
 
     // Affiche la valeur du nœud actuel
     printf("Valeur du nœud: %d\n", root->value);
 
     // Parcours récursif des fils
+    printf("n = %d\n", root->nbSons);
     for (int i = 0; i < root->nbSons; i++) {
+        printf("d1 = %d\n", root->depth);
         printTreeValues(root->sons[i]);  // Appel récursif pour chaque fils
+        printf("d2 = %d\n", root->depth);
     }
 }
 
