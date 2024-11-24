@@ -131,7 +131,7 @@ t_localisation translate(t_localisation loc, t_move move)
         default:
             break;
     }
-    return loc_init(res.x, res.y, loc.ori);
+        return loc_init(res.x, res.y, loc.ori);
 
 }
 
