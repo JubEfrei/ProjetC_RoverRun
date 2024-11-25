@@ -8,7 +8,7 @@
 #include "tree.h"
 
 
-t_node *createNode(int value, int depth, t_move *availablemvt, t_node *parent, t_localisation *loc)
+t_node *createNode(int value, int depth, t_move *availablemvt, t_node *parent, t_localisation *loc, int next_move)
 {
     t_node *node = (t_node *)malloc(sizeof(t_node));
     node->value = value;
@@ -17,6 +17,7 @@ t_node *createNode(int value, int depth, t_move *availablemvt, t_node *parent, t
     node->nbSons = 9 - depth;
     node->parent = parent;
     node->loc = loc;
+    node->next_move = next_move;
     return node;
 }
 t_move *updateAvails(t_move *parentAvails, t_move currentChoice, int nbSons) {
@@ -39,12 +40,12 @@ t_move *updateAvails(t_move *parentAvails, t_move currentChoice, int nbSons) {
 }
 
 
-void buildTree(t_node *parent, int depth, t_move *avails, int nbSons) {
+void buildTree(t_node *parent, int depth, t_move *avails, int nbSons, t_map *map) {
     // Vérifie si la profondeur maximale est atteinte
     if (depth == 5) {
         return;  // Si on atteint la profondeur 5, on arrête la récursion
     }
-
+    printf("%d\n", depth);
     // Vérification de la validité des paramètres
     if (parent == NULL || avails == NULL || nbSons <= 0) {
         printf("Erreur: paramètres invalides pour buildTree\n");
@@ -65,25 +66,86 @@ void buildTree(t_node *parent, int depth, t_move *avails, int nbSons) {
         int newDepth = depth + 1;
         t_localisation *new_loc = parent->loc;
 
-        updateLocalisation(new_loc, move);
+        if (map->soils[new_loc->pos.x][new_loc->pos.y] == ERG)
+        {
+            switch (move)
+            {
+                case F_10:
+                    break;
+                case B_10:
+                    break;
+                case F_20:
+                    updateLocalisation(new_loc, F_10);
+                    break;
+                case F_30:
+                    updateLocalisation(new_loc, F_20);
+                    break;
+                default:
+                    updateLocalisation(new_loc, move);
+                    break;
+            }
+        }
+        else
+        {
+            updateLocalisation(new_loc, move);
+        }
+
+        int new_value = map->costs[new_loc->pos.x][new_loc->pos.y];
+        printf("cost is %d and pos is %d %d\n", new_value, new_loc->pos.x, new_loc->pos.y);
 
         // Créer une copie des choix restants sans le choix actuel
         t_move *newAvails = updateAvails(avails, move, nbSons);
 
         // Créer le nœud fils
-        parent->sons[i] = createNode(move, newDepth, newAvails, parent, new_loc);
+        if (isValidLocalisation(new_loc->pos, map->x_max, map->y_max) == 1){
+            if (map->soils[new_loc->pos.x][new_loc->pos.y] == REG)
+            {
+                parent->sons[i] = createNode(new_value, newDepth, newAvails, parent, new_loc, 4);
 
-        // Appeler récursivement buildTree() pour construire le sous-arbre
-        buildTree(parent->sons[i], newDepth, newAvails, nbSons - 1);  // nbSons doit diminuer à chaque niveau
+                // Appeler récursivement buildTree() pour construire le sous-arbre
+                buildTree(parent->sons[i], newDepth, newAvails, nbSons - 1, map);  // nbSons doit diminuer à chaque niveau
 
-        // Libérer la mémoire de newAvails après utilisation
-        free(newAvails);
+                // Libérer la mémoire de newAvails après utilisation
+                free(newAvails);
+            }
+            else
+            {
+                if (map->soils[new_loc->pos.x][new_loc->pos.y] == CREVASSE)
+                {
+                    printf("Le robot est tombé dans une crevasse.\n");
+                    free(newAvails);
+                }
+                else
+                {
+                    if (map->soils[new_loc->pos.x][new_loc->pos.y] == BASE_STATION)
+                    {
+                        parent->sons[i] = createNode(new_value, newDepth, newAvails, parent, new_loc, parent->next_move);
+                        printf("Le rover est arrivé à destination!!!\n");
+                        free(newAvails);
+                    }
+                    else
+                    {
+                        parent->sons[i] = createNode(new_value, newDepth, newAvails, parent, new_loc, parent->next_move);
+
+                        // Appeler récursivement buildTree() pour construire le sous-arbre
+                        buildTree(parent->sons[i], newDepth, newAvails, nbSons - 1, map);  // nbSons doit diminuer à chaque niveau
+
+                        // Libérer la mémoire de newAvails après utilisation
+                        free(newAvails);
+                    }
+                }
+            }
+        }
+        else
+        {
+            printf("La position n'est pas valide\n");
+        }
     }
 }
 
 
 
-void printTreeValues(t_node *root) {
+void printTreeValues(t_node *root, t_map *map) {
     if (root->depth == 5) {
         printf("End tree\n");
         return;  // Cas de base : si le nœud est NULL, on ne fait rien
@@ -97,7 +159,7 @@ void printTreeValues(t_node *root) {
     printf("n = %d\n", root->nbSons);
     for (int i = 0; i < root->nbSons; i++) {
         printf("d1 = %d\n", root->depth);
-        printTreeValues(root->sons[i]);  // Appel récursif pour chaque fils
+        printTreeValues(root->sons[i], map);  // Appel récursif pour chaque fils
         printf("d2 = %d\n", root->depth);
     }
 }

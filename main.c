@@ -36,32 +36,20 @@ int main() {
     // Test de createNode
     printf("Test de createNode...\n");
     t_orientation base_orientation = NORTH;
-    t_localisation base_loc = loc_init(0, 0, base_orientation);
-    t_node *root = createNode(-1, 0, avails, NULL, &base_loc);  // Création de la racine
+    t_localisation base_loc = loc_init(2, 2, base_orientation);
+    t_node *root = createNode(-1, 0, avails, NULL, &base_loc, 5);  // Création de la racine
     if (root != NULL) {
         printf("Création de la racine réussie : valeur = %d, profondeur = %d\n", root->value, root->depth);
     }
 
-    // Test de updateAvails
-    printf("\nTest de updateAvails...\n");
-    int currentChoice = 3;  // Retirer le choix "3"
-    t_move *newAvails = updateAvails(avails, currentChoice, nbSons);
-    if (newAvails != NULL) {
-        printf("Mouvements disponibles après updateAvails : ");
-        for (int i = 0; newAvails[i] != -1; i++) {
-            printf("%d ", newAvails[i]);
-        }
-        printf("-1\n");
-        free(newAvails);  // Libérer la mémoire allouée
-    }
 
     // Test de buildTree
     printf("\nTest de buildTree...\n");
-    buildTree(root, 0, avails, nbSons);
+    buildTree(root, 0, avails, nbSons, &map);
     printf("Construction de l'arbre terminée.\n");
 
     printf("\nAffichage de l'arbre :\n");
-    printTree(root, 0);
+    printTreeValues(root, &map);
 
 
     return 0;
