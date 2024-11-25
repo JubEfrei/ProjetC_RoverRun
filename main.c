@@ -37,7 +37,7 @@ int main() {
     printf("Test de createNode...\n");
     t_orientation base_orientation = NORTH;
     t_localisation base_loc = loc_init(2, 2, base_orientation);
-    t_node *root = createNode(-1, 0, avails, NULL, &base_loc, 5);  // Création de la racine
+    t_node *root = createNode(-1, 0, avails, NULL, &base_loc, 5, 0);  // Création de la racine
     if (root != NULL) {
         printf("Création de la racine réussie : valeur = %d, profondeur = %d\n", root->value, root->depth);
     }

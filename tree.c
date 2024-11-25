@@ -8,7 +8,7 @@
 #include "tree.h"
 
 
-t_node *createNode(int value, int depth, t_move *availablemvt, t_node *parent, t_localisation *loc, int next_move)
+t_node *createNode(int value, int depth, t_move *availablemvt, t_node *parent, t_localisation *loc, int next_move, int status)
 {
     t_node *node = (t_node *)malloc(sizeof(t_node));
     node->value = value;
@@ -18,6 +18,7 @@ t_node *createNode(int value, int depth, t_move *availablemvt, t_node *parent, t
     node->parent = parent;
     node->loc = loc;
     node->next_move = next_move;
+    node->status = status;
     return node;
 }
 t_move *updateAvails(t_move *parentAvails, t_move currentChoice, int nbSons) {
@@ -64,6 +65,7 @@ void buildTree(t_node *parent, int depth, t_move *avails, int nbSons, t_map *map
     for (int i = 0; i < nbSons; i++) {
         t_move move = avails[i];  // Choix actuel pour le nœud fils
         int newDepth = depth + 1;
+        int status = 0;
         t_localisation *new_loc = parent->loc;
 
         if (map->soils[new_loc->pos.x][new_loc->pos.y] == ERG)
@@ -97,10 +99,15 @@ void buildTree(t_node *parent, int depth, t_move *avails, int nbSons, t_map *map
         t_move *newAvails = updateAvails(avails, move, nbSons);
 
         // Créer le nœud fils
+        if (newDepth == 5)
+        {
+            status = 1;
+        }
+
         if (isValidLocalisation(new_loc->pos, map->x_max, map->y_max) == 1){
             if (map->soils[new_loc->pos.x][new_loc->pos.y] == REG)
             {
-                parent->sons[i] = createNode(new_value, newDepth, newAvails, parent, new_loc, 4);
+                parent->sons[i] = createNode(new_value, newDepth, newAvails, parent, new_loc, 4, status);
 
                 // Appeler récursivement buildTree() pour construire le sous-arbre
                 buildTree(parent->sons[i], newDepth, newAvails, nbSons - 1, map);  // nbSons doit diminuer à chaque niveau
@@ -113,19 +120,21 @@ void buildTree(t_node *parent, int depth, t_move *avails, int nbSons, t_map *map
                 if (map->soils[new_loc->pos.x][new_loc->pos.y] == CREVASSE)
                 {
                     printf("Le robot est tombé dans une crevasse.\n");
+                    parent->sons[i] = createNode(new_value, newDepth, newAvails, parent, new_loc, parent->next_move, 3);
+
                     free(newAvails);
                 }
                 else
                 {
                     if (map->soils[new_loc->pos.x][new_loc->pos.y] == BASE_STATION)
                     {
-                        parent->sons[i] = createNode(new_value, newDepth, newAvails, parent, new_loc, parent->next_move);
+                        parent->sons[i] = createNode(new_value, newDepth, newAvails, parent, new_loc, parent->next_move, 2);
                         printf("Le rover est arrivé à destination!!!\n");
                         free(newAvails);
                     }
                     else
                     {
-                        parent->sons[i] = createNode(new_value, newDepth, newAvails, parent, new_loc, parent->next_move);
+                        parent->sons[i] = createNode(new_value, newDepth, newAvails, parent, new_loc, parent->next_move, status);
 
                         // Appeler récursivement buildTree() pour construire le sous-arbre
                         buildTree(parent->sons[i], newDepth, newAvails, nbSons - 1, map);  // nbSons doit diminuer à chaque niveau
@@ -139,6 +148,9 @@ void buildTree(t_node *parent, int depth, t_move *avails, int nbSons, t_map *map
         else
         {
             printf("La position n'est pas valide\n");
+            parent->sons[i] = createNode(10000, newDepth, newAvails, parent, new_loc, parent->next_move, 3);
+            free(newAvails);
+
         }
     }
 }
@@ -146,9 +158,17 @@ void buildTree(t_node *parent, int depth, t_move *avails, int nbSons, t_map *map
 
 
 void printTreeValues(t_node *root, t_map *map) {
-    if (root->depth == 5) {
-        printf("End tree\n");
+    if (root->status == 3) {
+        printf("End tree, the robot is dead\n");
         return;  // Cas de base : si le nœud est NULL, on ne fait rien
+    }
+    if (root->status == 2) {
+        printf("End tree, the robot as arrived\n");
+        return;  // Cas de base : si le nœud est NULL, on ne fait rien
+    }
+    if (root->status == 1)
+    {
+        printf("End tree, no more movement\n");
     }
 
 

@@ -18,9 +18,10 @@ typedef struct s_node {
     t_move *availablemvt;
     t_localisation *loc;
     int next_move;
+    int status;
 } t_node;
 
-t_node *createNode(int value, int depth, t_move *availablemvt, t_node *parent, t_localisation *loc, int next_move);
+t_node *createNode(int value, int depth, t_move *availablemvt, t_node *parent, t_localisation *loc, int next_move, int status);
 
 t_move *updateAvails(t_move *parentAvails, t_move currentChoice, int nbSons);
 
