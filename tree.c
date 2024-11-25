@@ -66,7 +66,8 @@ void buildTree(t_node *parent, int depth, t_move *avails, int nbSons, t_map *map
         t_move move = avails[i];  // Choix actuel pour le nœud fils
         int newDepth = depth + 1;
         int status = 0;
-        t_localisation *new_loc = parent->loc;
+        t_localisation *new_loc = malloc(sizeof(t_localisation));
+        *new_loc = *parent->loc;
 
         if (map->soils[new_loc->pos.x][new_loc->pos.y] == ERG)
         {
