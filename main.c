@@ -1,6 +1,11 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include "map.h"
 #include "tree.h"
+#include "loc.h"
+#include "moves.h"
+
+#define NB_MOVES 9
 
 int main() {
     t_map map = createMapFromFile("..\\maps\\example1.map");
@@ -25,12 +30,14 @@ int main() {
     displayMap(map);
 
     // Initialisation des choix disponibles pour les tests
-    int avails[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, -1};  // -1 pour marquer la fin
-    int nbSons = 9;  // Nombre de choix disponibles
+    t_move * avails = getRandomMoves(NB_MOVES);
+    int nbSons = NB_MOVES;  // Nombre de choix disponibles
 
     // Test de createNode
     printf("Test de createNode...\n");
-    t_node *root = createNode(-1, 0, avails, NULL);  // Création de la racine
+    t_orientation base_orientation = NORTH;
+    t_localisation base_loc = loc_init(0, 0, base_orientation);
+    t_node *root = createNode(-1, 0, avails, NULL, &base_loc);  // Création de la racine
     if (root != NULL) {
         printf("Création de la racine réussie : valeur = %d, profondeur = %d\n", root->value, root->depth);
     }
@@ -38,7 +45,7 @@ int main() {
     // Test de updateAvails
     printf("\nTest de updateAvails...\n");
     int currentChoice = 3;  // Retirer le choix "3"
-    int *newAvails = updateAvails(avails, currentChoice, nbSons);
+    t_move *newAvails = updateAvails(avails, currentChoice, nbSons);
     if (newAvails != NULL) {
         printf("Mouvements disponibles après updateAvails : ");
         for (int i = 0; newAvails[i] != -1; i++) {

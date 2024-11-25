@@ -4,7 +4,9 @@
 
 #ifndef TREE_H
 #define TREE_H
-#include <stdlib.h>
+
+#include "loc.h"
+#include "moves.h"
 
 typedef struct s_node {
     struct s_node *parent;
@@ -12,14 +14,15 @@ typedef struct s_node {
     int depth;
     int nbSons;
     struct s_node **sons;
-    int *availablemvt;
+    t_move *availablemvt;
+    t_localisation *loc;
 } t_node;
 
-t_node *createNode(int value, int depth, int *availablemvt, t_node *parent);
+t_node *createNode(int value, int depth, t_move *availablemvt, t_node *parent, t_localisation *loc);
 
-int *updateAvails(int *parentAvails, int currentChoice, int nbSons);
+t_move *updateAvails(t_move *parentAvails, t_move currentChoice, int nbSons);
 
-void buildTree(t_node *parent, int depth, int *avails, int nbSons);
+void buildTree(t_node *parent, int depth, t_move *avails, int nbSons);
 
 void printTreeValues(t_node *root);
 

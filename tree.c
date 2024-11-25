@@ -7,7 +7,8 @@
 #include <stdio.h>
 #include "tree.h"
 
-t_node *createNode(int value, int depth, int *availablemvt, t_node *parent)
+
+t_node *createNode(int value, int depth, t_move *availablemvt, t_node *parent, t_localisation *loc)
 {
     t_node *node = (t_node *)malloc(sizeof(t_node));
     node->value = value;
@@ -15,41 +16,30 @@ t_node *createNode(int value, int depth, int *availablemvt, t_node *parent)
     node->availablemvt = availablemvt;
     node->nbSons = 9 - depth;
     node->parent = parent;
+    node->loc = loc;
     return node;
 }
-int *updateAvails(int *parentAvails, int currentChoice, int nbSons) {
-    // Vérification de la validité des paramètres
-    if (parentAvails == NULL || nbSons <= 0) {
-        printf("Erreur: paramètres invalides pour updateAvails\n");
-        return NULL;
-    }
+t_move *updateAvails(t_move *parentAvails, t_move currentChoice, int nbSons) {
 
-    // Allocation de mémoire pour le tableau des choix restants
-    int *newAvails = (int *)malloc(nbSons * sizeof(int));  // On alloue pour un maximum de nbSons
+    int i, j = 0;
+    t_move *newAvails = (t_move *)malloc(nbSons * sizeof(t_move));
     if (newAvails == NULL) {
         printf("Erreur d'allocation mémoire pour updateAvails\n");
         exit(1);  // Terminer en cas d'erreur critique
     }
 
-    // Remplir le tableau newAvails avec les choix restants, en excluant currentChoice
-    int index = 0;
-    for (int i = 0; i < nbSons; i++) {
+    for (i = 0; i < nbSons; i++) {
         if (parentAvails[i] != currentChoice) {
-            newAvails[index++] = parentAvails[i];
+            newAvails[j] = parentAvails[i];
+            j++;
         }
     }
-
-    // Ajouter -1 à la fin pour marquer la fin du tableau
-    newAvails[index] = -1;
 
     return newAvails;
 }
 
 
-
-
-
-void buildTree(t_node *parent, int depth, int *avails, int nbSons) {
+void buildTree(t_node *parent, int depth, t_move *avails, int nbSons) {
     // Vérifie si la profondeur maximale est atteinte
     if (depth == 5) {
         return;  // Si on atteint la profondeur 5, on arrête la récursion
@@ -71,23 +61,17 @@ void buildTree(t_node *parent, int depth, int *avails, int nbSons) {
 
     // Parcours des choix disponibles et création des sous-arbres
     for (int i = 0; i < nbSons; i++) {
-        int move = avails[i];  // Choix actuel pour le nœud fils
+        t_move move = avails[i];  // Choix actuel pour le nœud fils
         int newDepth = depth + 1;
+        t_localisation *new_loc = parent->loc;
+
+        updateLocalisation(new_loc, move);
 
         // Créer une copie des choix restants sans le choix actuel
-        int *newAvails = updateAvails(avails, move, nbSons);
-        if (newAvails == NULL) {
-            printf("Erreur: échec de l'allocation mémoire pour updateAvails\n");
-            exit(1);
-        }
+        t_move *newAvails = updateAvails(avails, move, nbSons);
 
         // Créer le nœud fils
-        parent->sons[i] = createNode(move, newDepth, newAvails, parent);
-        if (parent->sons[i] == NULL) {
-            printf("Erreur: échec de la création d'un nœud fils\n");
-            free(newAvails);  // Libère la mémoire allouée pour newAvails
-            exit(1);
-        }
+        parent->sons[i] = createNode(move, newDepth, newAvails, parent, new_loc);
 
         // Appeler récursivement buildTree() pour construire le sous-arbre
         buildTree(parent->sons[i], newDepth, newAvails, nbSons - 1);  // nbSons doit diminuer à chaque niveau
