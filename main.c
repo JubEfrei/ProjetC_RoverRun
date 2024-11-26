@@ -60,6 +60,7 @@ int main() {
                bestLeaf->loc.pos.x, bestLeaf->loc.pos.y, bestLeaf->loc.ori);
     }
 
+
     printf("Tests terminés.\n");
 
     return 0;

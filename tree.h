@@ -38,6 +38,8 @@ void freeTree(t_node *node);
 
 void findOptimalPath(t_node *node, t_map map, int currentCost, int *bestCost, t_node **bestLeaf, t_localisation loc);
 
+void printOptimalPath(t_node *bestLeaf);
+
 
 
 #endif //TREE_H

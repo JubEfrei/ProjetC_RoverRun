@@ -253,3 +253,29 @@ void findOptimalPath(t_node *node, t_map map, int currentCost, int *bestCost, t_
     }
 }
 
+// Fonction pour afficher le chemin optimal
+void printOptimalPath(t_node *bestLeaf) {
+    if (bestLeaf == NULL) {
+        printf("Aucun chemin optimal trouvé.\n");
+        return;
+    }
+
+    printf("Chemin optimal (coût total = %d):\n", bestLeaf->case_cost);
+    t_node *current = bestLeaf;
+
+    // Stocker les mouvements dans un tableau pour les afficher dans l'ordre correct
+    int path[100]; // Assurez-vous que ce tableau est assez grand
+    int index = 0;
+
+    while (current != NULL) {
+        path[index++] = current->value;
+        current = current->parent;
+    }
+
+    // Affichage du chemin en partant de la racine
+    for (int i = index - 1; i >= 0; i--) {
+        printf("%d ", path[i]);
+    }
+    printf("\n");
+}
+
