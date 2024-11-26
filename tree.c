@@ -1,4 +1,3 @@
-
 //
 // Created by jubos on 12/11/2024.
 //
@@ -278,4 +277,3 @@ void printOptimalPath(t_node *bestLeaf) {
     }
     printf("\n");
 }
-
