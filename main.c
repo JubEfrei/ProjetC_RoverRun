@@ -1,13 +1,16 @@
-#include <stdio.h>
+﻿#include <stdio.h>
 #include <stdlib.h>
-#include "map.h"
 #include "tree.h"
-#include "loc.h"
+#include "map.h"
 #include "moves.h"
 
-#define NB_MOVES 9
 
+
+
+// Fonction principale de test
 int main() {
+    printf("Chargement de la carte...\n");
+
     t_map map = createMapFromFile("..\\maps\\example1.map");
     printf("Map created with dimensions %d x %d\n", map.y_max, map.x_max);
     for (int i = 0; i < map.y_max; i++)
@@ -29,28 +32,36 @@ int main() {
     }
     displayMap(map);
 
-    // Initialisation des choix disponibles pour les tests
-    t_move * avails = getRandomMoves(NB_MOVES);
-    int nbSons = NB_MOVES;  // Nombre de choix disponibles
+    printf("Carte chargée avec succès.\n");
 
-    // Test de createNode
-    printf("Test de createNode...\n");
-    t_orientation base_orientation = NORTH;
-    t_localisation base_loc = loc_init(2, 2, base_orientation);
-    t_node *root = createNode(-1, 0, avails, NULL, &base_loc, 5, 0);  // Création de la racine
-    if (root != NULL) {
-        printf("Création de la racine réussie : valeur = %d, profondeur = %d\n", root->value, root->depth);
+    // Initialisation des mouvements disponibles
+    int avails[] = {F_10, F_20, F_30, B_10, T_LEFT, T_RIGHT, U_TURN};
+
+    printf("Initialisation de l'arbre...\n");
+
+    // Création de la racine de l'arbre
+    t_localisation rootLoc = {2, 2, NORTH};
+    t_node *root = createNode(-1, 0, avails, NULL, rootLoc, 0, 0, 0);
+    printNode(root);
+
+    printf("Construction de l'arbre...\n");
+    buildTree(root, 0, avails, 7, map);
+
+    
+
+    printf("Recherche du chemin optimal...\n");
+    int bestCost = 1000000; // Coût initial élevé
+    t_node *bestLeaf = NULL;
+    findOptimalPath(root, map, 0, &bestCost, &bestLeaf, rootLoc);
+
+    printf("Chemin optimal trouvé : coût = %d.\n", bestCost);
+    if (bestLeaf) {
+        printf("Feuille optimale : localisation = (%d, %d, %d).\n",
+               bestLeaf->loc.pos.x, bestLeaf->loc.pos.y, bestLeaf->loc.ori);
     }
 
 
-    // Test de buildTree
-    printf("\nTest de buildTree...\n");
-    buildTree(root, 0, avails, nbSons, &map);
-    printf("Construction de l'arbre terminée.\n");
-
-    printf("\nAffichage de l'arbre :\n");
-    printTreeValues(root, &map);
-
+    printf("Tests terminés.\n");
 
     return 0;
 }

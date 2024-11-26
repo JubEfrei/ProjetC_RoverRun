@@ -1,42 +1,45 @@
+
+
 //
 // Created by jubos on 12/11/2024.
 //
 
 #ifndef TREE_H
 #define TREE_H
-
+#include <stdlib.h>
 #include "loc.h"
 #include "map.h"
-#include "moves.h"
 
 typedef struct s_node {
-    struct s_node *parent;
-    int value;
-    int depth;
-    int nbSons;
-    struct s_node **sons;
-    t_move *availablemvt;
-    t_localisation *loc;
-    int next_move;
+    struct s_node *parent;      // Pointeur vers le parent
+    int value;                  // Mouvement associé au nœud
+    int depth;                  // Profondeur du nœud dans l'arbre
+    int nbSons;                 // Nombre de fils du nœud
+    struct s_node **sons;       // Tableau dynamique des fils
+    int *availablemvt;          // Tableau des mouvements restants
+    t_localisation loc;         // Localisation actuelle (position et orientation)
     int status;
+    int next_phase;
+    int case_cost;
 } t_node;
 
-t_node *createNode(int value, int depth, t_move *availablemvt, t_node *parent, t_localisation *loc, int next_move, int status);
 
-t_move *updateAvails(t_move *parentAvails, t_move currentChoice, int nbSons);
+t_node *createNode(int value, int depth, int *availablemvt, t_node *parent, t_localisation loc, int status, int next_phase, int case_cost);
 
-void buildTree(t_node *parent, int depth, t_move *avails, int nbSons, t_map *map);
+int *updateAvails(int *parentAvails, int currentChoice, int nbSons);
 
-void printTreeValues(t_node *root, t_map *map);
+void buildTree(t_node *parent, int depth, int *avails, int nbSons, t_map map);
 
-void printTree(t_node *root, int level);
+void printNode(t_node *node);
+
+void printTree(t_node *node, int depth);
+
+void freeTree(t_node *node);
+
+void findOptimalPath(t_node *node, t_map map, int currentCost, int *bestCost, t_node **bestLeaf, t_localisation loc);
+
+void printOptimalPath(t_node *bestLeaf);
+
 
 
 #endif //TREE_H
-
-
-
-
-
-
-
