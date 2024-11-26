@@ -5,8 +5,6 @@
 #include "moves.h"
 
 
-
-
 // Fonction principale de test
 
 int main() {
@@ -41,7 +39,7 @@ int main() {
     printf("Initialisation de l'arbre...\n");
 
     // Création de la racine de l'arbre
-    t_localisation rootLoc = {2, 2, NORTH};
+    t_localisation rootLoc = {1, 1, NORTH};
     t_node *root = createNode(-1, 0, avails, NULL, rootLoc, 0, 0, 0);
     printNode(root);
 
@@ -50,19 +48,18 @@ int main() {
 
     
 
-    printf("Recherche du chemin optimal...\n");
-    int bestCost = 1000000; // Coût initial élevé
+    //printf("Recherche du chemin optimal...\n");
+    //t_node **bestLeaf = NULL;
+    //getOptimalPath(bestLeaf, root);
+
+    //printf("Chemin optimal trouvé : coût = %d.\n", (*bestLeaf)->case_cost);
+
+    int bestCost = 10000;
     t_node *bestLeaf = NULL;
     findOptimalPath(root, map, 0, &bestCost, &bestLeaf, rootLoc);
-
-    printf("Chemin optimal trouvé : coût = %d.\n", bestCost);
-    if (bestLeaf) {
-        printf("Feuille optimale : localisation = (%d, %d, %d).\n",
-               bestLeaf->loc.pos.x, bestLeaf->loc.pos.y, bestLeaf->loc.ori);
-    }
-
-
     printf("Tests terminés.\n");
+
+    printf("Le meilleur chemin arrive à la case en %d, %d avec une case de cout : %d", bestLeaf->loc.pos.x, bestLeaf->loc.pos.y, bestCost);
 
     return 0;
 }

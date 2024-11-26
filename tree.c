@@ -110,14 +110,37 @@ void buildTree(t_node *parent, int depth, int *avails, int nbSons, t_map map) {
         }
 
         int newDepth = depth + 1;
-        int status = (newDepth == 5) ? 1 : 0;
+        int status = 0;
+        if (newDepth == 5)
+        {
+            status = 1;
+        }
 
         t_localisation newLoc = parent->loc; // Copie locale de la localisation du parent
-        updateLocalisation(&newLoc, currentMove);
+        if (map.soils[parent->loc.pos.x][parent->loc.pos.y] == ERG)
+        {
+            switch (currentMove) {
+            case F_10:
+                break;
+            case B_10:
+                break;
+            case F_20:
+                updateLocalisation(&newLoc, F_10);
+                break;
+            case F_30:
+                updateLocalisation(&newLoc, F_20);
+                break;
+            default:
+                updateLocalisation(&newLoc, currentMove);
+                break;
+            }
+        } else {
+            updateLocalisation(&newLoc, currentMove);
+        }
 
         if (!isValidLocalisation(newLoc.pos, map.x_max, map.y_max)) {
-            printf("Position invalide détectée pour le mouvement %d : (%d, %d).\n",
-                   currentMove, newLoc.pos.x, newLoc.pos.y);
+            printf("Position invalide détectée pour le mouvement %d : (%d, %d).\n",currentMove, newLoc.pos.x, newLoc.pos.y);
+            parent->sons[i] = createNode(currentMove, newDepth, NULL, parent, newLoc, 3, 5, 10000);
             continue; // Ignore ce mouvement
         }
 
@@ -132,22 +155,29 @@ void buildTree(t_node *parent, int depth, int *avails, int nbSons, t_map map) {
 
         if (soilType == CREVASSE) {
             printf("Le robot est tombé dans une crevasse.\n");
-            parent->sons[i] = createNode(currentMove, newDepth, newAvails, parent, newLoc, 3, status, nodeCost);
+            parent->sons[i] = createNode(currentMove, newDepth, newAvails, parent, newLoc, 3, 4, nodeCost);
             free(newAvails);
             continue;
         }
 
         if (soilType == BASE_STATION) {
             printf("Vous êtes arrivé à la base.\n");
-            parent->sons[i] = createNode(currentMove, newDepth, newAvails, parent, newLoc, 2, status, nodeCost);
+            parent->sons[i] = createNode(currentMove, newDepth, newAvails, parent, newLoc, 2, parent->next_phase, nodeCost);
             free(newAvails);
             continue;
         }
 
         printf("Le nouveau nœud a comme coordonnées : (%d, %d), coût : %d.\n",
                newLoc.pos.x, newLoc.pos.y, nodeCost);
+        if (soilType == REG)
+        {
+            parent->sons[i] = createNode(currentMove, newDepth, newAvails, parent, newLoc, status, 4, nodeCost);
+        }
+        else
+        {
+            parent->sons[i] = createNode(currentMove, newDepth, newAvails, parent, newLoc, status, parent->next_phase, nodeCost);
 
-        parent->sons[i] = createNode(currentMove, newDepth, newAvails, parent, newLoc, status, parent->next_phase, nodeCost);
+        }
         buildTree(parent->sons[i], newDepth, newAvails, nbSons - 1, map);
         free(newAvails);
     }
@@ -168,11 +198,6 @@ void printTree(t_node *node, int level) {
         printTree(node->sons[i], level + 1);
     }
 }
-
-
-
-
-
 
 
 void freeTree(t_node *node) {
@@ -277,3 +302,58 @@ void printOptimalPath(t_node *bestLeaf) {
     }
     printf("\n");
 }
+void getOptimalPath(t_node **bestLeaf, t_node *node) {
+            if (node == NULL) {
+                return; // Aucun nœud à traiter
+            }
+
+            if (bestLeaf != NULL) {
+                printf("Pos : %d, %d, cost : %d", (*bestLeaf)->loc.pos.x, (*bestLeaf)->loc.pos.y, (*bestLeaf)->case_cost);
+                return; // Aucun nœud à traiter
+            }
+
+            // Ignorer les crevasses
+            if (node->status == 3) {
+                return;
+            }
+
+            // Si le nœud atteint la base et est meilleur, le mettre à jour
+            if (node->status == 2) {
+                printf("Status 2\n");
+                if (*bestLeaf == NULL || (*bestLeaf)->depth > node->depth){
+                    printf("Status 2\n");
+                    *bestLeaf = node;
+                   }
+                return;
+            }
+
+            // Si le nœud est une feuille, vérifier s'il est meilleur
+            if (node->status == 1) {
+                printf("Status 1\n");
+                if (bestLeaf == NULL ||((*bestLeaf)->status != 2 && (*bestLeaf)->case_cost > node->case_cost)) {
+                    printf("Status 1\n");
+                    *bestLeaf = node;
+                    printf("Status 1 done\n");
+                    }
+            }
+
+            // Parcours des fils
+            if (node->status == 0 || node->sons[0] == NULL || node->nbSons<0 || node->nbSons > 10)
+            {
+                for (int i = 0; i < node->nbSons; i++) {
+                    if (node->sons[i] != NULL) {
+                        printf("Recheche a la profondeur inferieur\n");
+                        printf("Pos : %d, %d, cost : %d, at depht %d\n", node->sons[i]->loc.pos.x, node->sons[i]->loc.pos.y, node->sons[i]->case_cost, node->sons[i]->depth);
+
+                        getOptimalPath(bestLeaf, node->sons[i]);
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+            }
+
+        }
+
+
