@@ -38,6 +38,8 @@ void findOptimalPath(t_node *node, t_map map, int currentCost, int *bestCost, t_
 
 void printOptimalPath(t_node *bestLeaf);
 
+void getOptimalPath(t_node **bestLeaf, t_node *node);
+
 
 
 #endif //TREE_H

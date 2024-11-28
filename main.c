@@ -46,20 +46,13 @@ int main() {
     printf("Construction de l'arbre...\n");
     buildTree(root, 0, avails, 7, map);
 
-    
-
-    //printf("Recherche du chemin optimal...\n");
-    //t_node **bestLeaf = NULL;
-    //getOptimalPath(bestLeaf, root);
-
-    //printf("Chemin optimal trouvé : coût = %d.\n", (*bestLeaf)->case_cost);
-
     int bestCost = 10000;
     t_node *bestLeaf = NULL;
     findOptimalPath(root, map, 0, &bestCost, &bestLeaf, rootLoc);
     printf("Tests terminés.\n");
 
     printf("Le meilleur chemin arrive à la case en %d, %d avec une case de cout : %d", bestLeaf->loc.pos.x, bestLeaf->loc.pos.y, bestCost);
+
 
     return 0;
 }
